@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 
-#define URL_FORMAT  "https://doubleleft.deployhq.com/projects"
+#define URL_FORMAT  "https://%s.deployhq.com/projects"
 #define URL_SIZE    256
  
 int main(void)
@@ -14,10 +14,11 @@ int main(void)
   struct curl_slist *headers = NULL;
   char *username=getenv("DEPLOYHQ_USER");
   char *token=getenv("DEPLOYHQ_TOKEN");
+  char *account=getenv("DEPLOYHQ_ACCOUNT");
 
   curl_global_init(CURL_GLOBAL_DEFAULT);
 
-  snprintf(url, URL_SIZE, URL_FORMAT);
+  snprintf(url, URL_SIZE, URL_FORMAT, account);
   snprintf(credential, sizeof credential, "%s:%s", username, token);
 
   curl = curl_easy_init();
