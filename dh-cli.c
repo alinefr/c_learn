@@ -2,38 +2,15 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 
-#define URL_FORMAT  "https://%s.deployhq.com/projects/%s/repository/latest_revision?branch=%s"
+#define URL_GETLATEST  "https://%s.deployhq.com/projects/%s/repository/latest_revision?branch=%s"
+#define URL  "https://%s.deployhq.com/projects/%s"
 #define URL_SIZE    256
- 
-int main(int argc, char *argv[])
+
+static char get_latest_revision(const char *url, int argc, char *argv[], char *credential, char *account)
 {
-  CURL *curl;
+  CURL *curl = NULL;
   CURLcode res;
-  char url[URL_SIZE];
-  char credential[256];
   struct curl_slist *headers = NULL;
-  char *username=getenv("DEPLOYHQ_USER");
-  char *token=getenv("DEPLOYHQ_TOKEN");
-  char *account=getenv("DEPLOYHQ_ACCOUNT");
-
-  if(argc != 3 && argc != 2)
-  {
-      fprintf(stderr, "usage: %s PROJECT [branch]\n\n", argv[0]);
-      return 2;
-  }
-
-  curl_global_init(CURL_GLOBAL_DEFAULT);
-
-    if(argc == 2)
-   {
-      snprintf(url, URL_SIZE, URL_FORMAT, account, argv[1], "master");
-   } 
-    else if(argc == 3)
-   {
-      snprintf(url, URL_SIZE, URL_FORMAT, account, argv[1], argv[2]);
-   }
-
-  snprintf(credential, sizeof credential, "%s:%s", username, token);
 
   curl = curl_easy_init();
   if(curl) {
@@ -84,3 +61,39 @@ int main(int argc, char *argv[])
   }
   return 0;
 }
+
+int main(int argc, char *argv[])
+{
+    char url[URL_SIZE], url_getlatest[URL_SIZE], end_url_getlatest[URL_SIZE];
+    struct curl_slist *headers = NULL;
+    char *username=getenv("DEPLOYHQ_USER");
+    char *token=getenv("DEPLOYHQ_TOKEN");
+    char *account=getenv("DEPLOYHQ_ACCOUNT");
+
+    char credential[256];
+    char latest_revision;
+
+
+    if(argc != 3 && argc != 2)
+    {
+        fprintf(stderr, "usage: %s PROJECT [BRANCH]\n\n", argv[0]);
+        return 2;
+    }
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    snprintf(url, URL_SIZE, URL, account, argv[1], "/deployments");
+    snprintf(credential, sizeof credential, "%s:%s", username, token);
+
+    if(argc == 2)
+    {
+        snprintf(url_getlatest, URL_SIZE, URL, account, argv[1], "/repository/latest_revision?branch=master");
+    }
+    else if(argc == 3)
+    {
+        snprintf(end_url_getlatest, URL_SIZE, "/repository/latest_revision?branch=%s", argv[2]);
+        snprintf(url_getlatest, URL_SIZE, URL, account, end_url_getlatest);
+    }
+    latest_revision = get_latest_revision(url,argc,argv,credential,account);
+}
+
+
