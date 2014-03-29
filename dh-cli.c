@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 
-#define URL_FORMAT  "https://%s.deployhq.com/projects"
+#define URL_FORMAT  "https://%s.deployhq.com/projects/%s/repository/latest_revision?branch=%s"
 #define URL_SIZE    256
  
-int main(void)
+int main(int argc, char *argv[])
 {
   CURL *curl;
   CURLcode res;
@@ -16,9 +16,23 @@ int main(void)
   char *token=getenv("DEPLOYHQ_TOKEN");
   char *account=getenv("DEPLOYHQ_ACCOUNT");
 
+  if(argc != 3 && argc != 2)
+  {
+      fprintf(stderr, "usage: %s PROJECT [branch]\n\n", argv[0]);
+      return 2;
+  }
+
   curl_global_init(CURL_GLOBAL_DEFAULT);
 
-  snprintf(url, URL_SIZE, URL_FORMAT, account);
+    if(argc == 2)
+   {
+      snprintf(url, URL_SIZE, URL_FORMAT, account, argv[1], "master");
+   } 
+    else if(argc == 3)
+   {
+      snprintf(url, URL_SIZE, URL_FORMAT, account, argv[1], argv[2]);
+   }
+
   snprintf(credential, sizeof credential, "%s:%s", username, token);
 
   curl = curl_easy_init();
