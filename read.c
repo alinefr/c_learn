@@ -5,7 +5,7 @@ int main() {
 
     FILE *f;
     char c;
-    char* fname = "test.txt";
+    char *fname = "test.txt";
     if ((f=fopen(fname, "rt")) == NULL)
     {
         printf("File %s not found\n",fname);
