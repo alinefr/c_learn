@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 
-#define URL_GETLATEST  "https://%s.deployhq.com/projects/%s/repository/latest_revision?branch=%s"
-#define URL  "https://%s.deployhq.com/projects/%s"
+#define URL  "https://%s.deployhq.com/projects/%s/%s"
 #define URL_SIZE    256
 
-static char get_latest_revision(const char *url, int argc, char *argv[], char *credential, char *account)
+static char get_latest_revision(const char *url_getlatest, int argc, char *argv[], char *credential, char *account)
 {
   CURL *curl = NULL;
   CURLcode res;
@@ -14,7 +13,7 @@ static char get_latest_revision(const char *url, int argc, char *argv[], char *c
 
   curl = curl_easy_init();
   if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_URL, url_getlatest);
 
     headers = curl_slist_append(headers, "Accept: application/json");
     headers = curl_slist_append(headers, "Content-type: application/json");
@@ -59,10 +58,10 @@ static char get_latest_revision(const char *url, int argc, char *argv[], char *c
     /* always cleanup */ 
     curl_easy_cleanup(curl);
   }
-  return 0;
+  return res;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 {
     char url[URL_SIZE], url_getlatest[URL_SIZE], end_url_getlatest[URL_SIZE];
     struct curl_slist *headers = NULL;
@@ -71,7 +70,6 @@ int main(int argc, char *argv[])
     char *account=getenv("DEPLOYHQ_ACCOUNT");
 
     char credential[256];
-    char latest_revision;
 
 
     if(argc != 3 && argc != 2)
@@ -91,9 +89,10 @@ int main(int argc, char *argv[])
     else if(argc == 3)
     {
         snprintf(end_url_getlatest, URL_SIZE, "/repository/latest_revision?branch=%s", argv[2]);
-        snprintf(url_getlatest, URL_SIZE, URL, account, end_url_getlatest);
+        snprintf(url_getlatest, URL_SIZE, URL, account, argv[1], end_url_getlatest);
     }
-    latest_revision = get_latest_revision(url,argc,argv,credential,account);
+    get_latest_revision(url_getlatest,argc,argv,credential,account);
+    return 0;
 }
 
 
