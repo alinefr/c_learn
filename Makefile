@@ -1,9 +1,9 @@
 CC=gcc
-CFLAGS=-g
+CFLAGS=-g -I/opt/local/include
 
 ODIR=obj
 
-LIBS=-lcurl
+LIBS=-lcurl -ljansson
 
 _OBJ = dh-cli.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
